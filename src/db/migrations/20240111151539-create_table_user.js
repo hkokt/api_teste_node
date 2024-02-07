@@ -10,11 +10,12 @@ module.exports = {
           primaryKey: true,
           autoIncrement: true
         },
-        name_user: Sequelize.STRING,
+        username: {
+          type: Sequelize.STRING,
+          unique: true
+        },
         hashedPassword: Sequelize.STRING,
-        token_user: Sequelize.TEXT,
-        cpf: Sequelize.STRING,
-        email_institucional: Sequelize.STRING
+        token: Sequelize.TEXT,
       });
   },
 

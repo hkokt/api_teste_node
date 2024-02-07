@@ -1,36 +1,27 @@
-import PgPool from "./PgPool";
+import pool from "./PgPool";
 import User from "../model/User";
 
-class UserService {
+import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
+import 'dotenv/config';
 
-    async findById(id: number): Promise<User> {
+class UserService {
+    public async findById(id: number): Promise<User[]> {
         try {
-            const result = await PgPool.query({
-                text: 'select id_user, username, token where id_user = $1;',
+            const result = await pool.query({
+                text: 'select id_user, username, token from "user" where id_user = $1;',
                 values: [id]
             });
-            return result[0] as User;
+            return result as User[];
         } catch (err) {
             throw err;
         }
     }
 
-    async findByUsername(username: string): Promise<User> {
+    public async findByUsername(username: string): Promise<User[]> {
         try {
-            const result = await PgPool.query({
-                text: 'select id_user, username, token where username = $1;',
-                values: [username]
-            });
-            return result[0] as User;
-        } catch (err) {
-            throw err;
-        }
-    }
-
-    async filterByUsername(username: string): Promise<User[]> {
-        try {
-            const result = await PgPool.query({
-                text: 'select id_user, username, token where username = $1;',
+            const result = await pool.query({
+                text: 'select id_user, username, token from "user" where username = $1;',
                 values: [username]
             });
             return result as User[];
@@ -39,10 +30,10 @@ class UserService {
         }
     }
 
-    async update(id: number, user: User) {
+    public async update(id: number, user: User) {
         try {
-            await PgPool.query({
-                text: 'update user set username = $1, token = $2 where id_user = $3 ',
+            await pool.query({
+                text: 'update "user" set username = $1, token = $2 where id_user = $3 ',
                 values: [user.username, user.token, id]
             });
             return user;
@@ -51,25 +42,42 @@ class UserService {
         }
     }
 
-    async save(user: User): Promise<User> {
+    public async save(user: User): Promise<User> {
         try {
-            await PgPool.query({
-                text: 'insert into user (username, token) values ($1, $2);',
+            await pool.query({
+                text: 'insert into "user" (username, token) values ($1, $2);',
                 values: [user.username, user.token]
             });
-            return user;
+            return await this.findByUsername(user.username)[0];
         } catch (err) {
             throw err;
         }
     }
 
-    async delete(id: number): Promise<number> {
+    public async delete(id: number): Promise<number> {
         try {
-            await PgPool.query({
-                text: 'delete from user where id = $1',
+            await pool.query({
+                text: 'delete from "user" where id = $1',
                 values: [id]
             });
             return id;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    public async register(username: string, password: string): Promise<User> {
+        try {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const token = jwt.sign({ username }, process.env.SECRET_JWT, { expiresIn: '1d' });
+
+            const userToCreate: User = {
+                username: username,
+                token: token,
+                hashedPassword: hashedPassword
+            }
+
+            return await this.save(userToCreate);
         } catch (err) {
             throw err;
         }
