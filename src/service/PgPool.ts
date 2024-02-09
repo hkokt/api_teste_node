@@ -5,6 +5,7 @@ class PgPool {
     private pool: Pool;
 
     constructor() {
+
         const config: ClientConfig = {
             host: process.env.POSTGRES_HOST as string,
             port: Number(process.env.POSTGRES_PORT) as number,
@@ -19,7 +20,8 @@ class PgPool {
             user: process.env.POSTGRES_USER as string,
             password: process.env.POSTGRES_PASSWORD as string,
             database: process.env.POSTGRES_DB as string
-        })
+        });
+
         this.pool = new Pool(config);
     }
 

@@ -8,6 +8,6 @@ const endpoints = {
 }
 
 router.post(`${endpoints.USER}/register`, UserController.register);
-router.post(`${endpoints.USER}/login`, () => { }, UserController.login);
+router.post(`${endpoints.USER}/login`, UserController.login);
 
 export default router;
