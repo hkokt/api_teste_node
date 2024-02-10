@@ -7,7 +7,7 @@
 - Content-type: application/json
 ### body
         {
-            "name_user" : "<<your_user>>",
+            "username" : "<<your_user>>",
             "password": "<<your_password>>"
         }
 
@@ -23,13 +23,13 @@
 - Content-type: application/json
 ### body
         {
-            "name_user" : "<<your_user>>",
+            "username" : "<<your_user>>",
             "password": "<<your_password>>"
         }
 
 ### expected respose
         {
-            "id_user" : <<id_number>>, 
+            "username" : <<id_number>>, 
             "name_user" "<<your_user>>", 
             "token_user": "<<your_JWT_token>>"
         }

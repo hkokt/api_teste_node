@@ -2,6 +2,7 @@ import { Pool, QueryResult, PoolClient, QueryResultRow, ClientConfig } from 'pg'
 import 'dotenv/config';
 
 class PgPool {
+
     private pool: Pool;
 
     constructor() {
@@ -13,14 +14,6 @@ class PgPool {
             password: process.env.POSTGRES_PASSWORD as string,
             database: process.env.POSTGRES_DB as string
         }
-
-        console.log('credenciais db:', {
-            host: process.env.POSTGRES_HOST as string,
-            port: Number(process.env.POSTGRES_PORT) as number,
-            user: process.env.POSTGRES_USER as string,
-            password: process.env.POSTGRES_PASSWORD as string,
-            database: process.env.POSTGRES_DB as string
-        });
 
         this.pool = new Pool(config);
     }

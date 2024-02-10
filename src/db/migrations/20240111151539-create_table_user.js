@@ -14,11 +14,10 @@ module.exports = {
           type: Sequelize.STRING,
           unique: true
         },
-        hashedPassword: Sequelize.STRING,
+        hashed_password: Sequelize.STRING,
         token: Sequelize.TEXT,
       });
   },
-
   async down(queryInterface, Sequelize) {
     return await queryInterface.dropTable('user');
   }

@@ -18,7 +18,7 @@ class UserDto {
     public async findByUsername(username: string): Promise<User[]> {
         try {
             const result = await pool.query({
-                text: 'select id_user, username, token from "user" where username = $1;',
+                text: 'select id_user, username, hashed_password, token from "user" where username = $1;',
                 values: [username]
             });
             return result as User[];
@@ -42,10 +42,12 @@ class UserDto {
     public async save(user: User): Promise<User> {
         try {
             await pool.query({
-                text: 'insert into "user" (username, token) values ($1, $2);',
-                values: [user.username, user.token]
+                text: 'insert into "user" (username, token, hashed_password) values ($1, $2, $3);',
+                values: [user.username, user.token, user.hashed_password]
             });
-            return await this.findByUsername(user.username)[0];
+            
+            const saved: User[] = await this.findByUsername(user.username);
+            return saved[0];
         } catch (err) {
             throw err;
         }
@@ -57,6 +59,7 @@ class UserDto {
                 text: 'delete from "user" where id = $1',
                 values: [id]
             });
+
             return id;
         } catch (err) {
             throw err;

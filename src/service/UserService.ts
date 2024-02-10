@@ -15,53 +15,60 @@ class UserService {
             const userToCreate: User = {
                 username: username,
                 token: token,
-                hashedPassword: hashedPassword
+                hashed_password: hashedPassword
             }
+            const user: User = await UserDto.save(userToCreate);
 
-            return await UserDto.save(userToCreate);
+            return user;
         } catch (err) {
             throw err;
         }
     }
 
     public async login(username: string, password: string): Promise<User> {
+        const invalidCredg: string = 'Wrong username or password';
+
         try {
-            const user: User = await UserDto.findByUsername(username)[0];
-            const invalidCredg: string = 'Wrong username or password';
+            const user: User[] = await UserDto.findByUsername(username);
 
-            const isPasswordValid = await bcrypt.compare(password, user.hashedPassword);
+            if (user.length === 0) {
+                throw new Error(invalidCredg);
+            }
 
-            if (!user || !isPasswordValid) {
+            const isPasswordValid = await bcrypt.compare(password, user[0].hashed_password);
+
+            if (!isPasswordValid) {
                 throw new Error(invalidCredg);
             }
 
             const token = jwt.sign({ username }, process.env.SECRET_JWT, { expiresIn: '1h' });
-            user.token = token;
+            user[0].token = token;
 
-            const userNewToken = await UserDto.update(user.id_user, user);
+            const userNewToken = await UserDto.update(user[0].id_user, user[0]);
 
             return userNewToken;
-
         } catch (error) {
+            if (error.message === invalidCredg) {
+                throw new Error(invalidCredg);
+            }
             throw new Error("Login internal failure.");
         }
     }
 
-    public async verifyToken(token: string): Promise<User> {
+    public async verifyToken(token: string): Promise<Boolean> {
         try {
             if (!token) {
                 throw new Error('Invalid token');
             }
 
             const decoded = jwt.verify(token, process.env.SECRET_JWT) as { username: string };
-            const user = await UserDto.findByUsername(decoded.username)[0];
+            const user = await UserDto.findByUsername(decoded.username);
 
-            if (!user) {
+            if (!user[0]) {
                 throw new Error('Invalid user');
             }
 
-            return user;
-
+            return true;
         } catch (error) {
             if (error instanceof jwt.JsonWebTokenError) {
                 throw new Error('Invalid token');
