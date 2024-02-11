@@ -44,8 +44,11 @@ class UserController {
             }
             if (await UserService.verifyToken(token)) {
                 next();
-            } 
+            }
         } catch (error) {
+            if (error.message === `Cannot read properties of undefined (reading 'replace')`) {
+                response.status(401).send({ error: 'Any token provided' });
+            }
             if (error.message === 'Invalid token format') {
                 response.status(401).send({ error: error.message });
             }
@@ -54,7 +57,7 @@ class UserController {
             }
             response.status(500).send({ error: 'Token failure:' + error.message });
         } finally {
-            return;
+            return
         }
     }
 
